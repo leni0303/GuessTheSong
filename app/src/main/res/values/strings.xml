@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CS306 - Coursework</string>
+    <string name="sharedPreference">preference</string>
+    <string name="sharedPreferenceKey">isFirstTimeUser</string>
 </resources>
