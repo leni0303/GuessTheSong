@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:backgroundTint="#323232"
+        android:backgroundTint="@color/mintGreen"
         android:clickable="false"
         android:clipToPadding="true"
         app:fabAlignmentMode="center"
@@ -27,10 +27,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/music"
-        app:backgroundTint="#2B2B2B"
+        app:backgroundTint="@color/lavender"
         app:fabSize="auto"
         app:layout_anchor="@id/bar"
         app:maxImageSize="40dp"
+        app:rippleColor="@color/lavender"
         app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
