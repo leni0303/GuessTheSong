@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <group android:checkableBehavior="none">
+        <item
+            android:id="@+id/top_songs"
+            android:icon="@drawable/top_songs"
+            android:title="@string/top_songs_item" />
+        <item
+            android:id="@+id/change_mode"
+            android:icon="@drawable/swap"
+            android:title="@string/change_mode_item" />
+        <item
+            android:id="@+id/change_song"
+            android:icon="@drawable/swap"
+            android:title="@string/change_song_item" />
+        <item
+            android:id="@+id/song_list"
+            android:icon="@drawable/song_list"
+            android:title="@string/song_list_item" />
+        <item
+            android:id="@+id/quit_app"
+            android:icon="@drawable/exit"
+            android:title="@string/quit_app_item" />
+    </group>
+</menu>

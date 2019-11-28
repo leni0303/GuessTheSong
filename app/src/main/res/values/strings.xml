@@ -2,4 +2,10 @@
     <string name="app_name">CS306 - Coursework</string>
     <string name="sharedPreference">preference</string>
     <string name="sharedPreferenceKey">isFirstTimeUser</string>
+    <string name="top_songs_item">topSongs</string>
+    <string name="change_mode_item">changeMode</string>
+    <string name="change_song_item">changeSong</string>
+    <string name="song_list_item">sogList</string>
+    <string name="quit_app_item">quitApp</string>
+    <string name="action_fav_songs">favouriteSongs</string>
 </resources>

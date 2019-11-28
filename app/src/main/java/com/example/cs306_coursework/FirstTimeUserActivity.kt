@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.view.View
 
 class FirstTimeUserActivity : AppCompatActivity() {
-    private val sharedPreferenceName = getString(R.string.sharedPreference)
+    private val sharedPreferenceName = "pref"
     private val sharedPreferencesKey = "mode"
 
 

@@ -11,12 +11,26 @@
         android:id="@+id/bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"/>
+        android:layout_gravity="bottom"
+        android:backgroundTint="#323232"
+        android:clickable="false"
+        android:clipToPadding="true"
+        app:fabAlignmentMode="center"
+        app:fabCradleMargin="8dp"
+        app:fabCradleRoundedCornerRadius="3dp"
+        app:fabCradleVerticalOffset="0dp"
+        app:menu="@menu/bottom_app_bar_items"
+        app:navigationIcon="@drawable/menu" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_anchor="@id/bar"/>
+        android:src="@drawable/music"
+        app:backgroundTint="#2B2B2B"
+        app:fabSize="auto"
+        app:layout_anchor="@id/bar"
+        app:maxImageSize="40dp"
+        app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
