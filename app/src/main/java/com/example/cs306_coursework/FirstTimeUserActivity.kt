@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 
 class FirstTimeUserActivity : AppCompatActivity() {
@@ -15,6 +16,8 @@ class FirstTimeUserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_first_time_user)
+
+        Log.d("TAG", "It's a first time user")
     }
 
     private fun selectRandSong(mode: String): String {
@@ -40,6 +43,7 @@ class FirstTimeUserActivity : AppCompatActivity() {
     fun chooseClassic(view: View) {
         val  randSong = selectRandSong("classic")
 
+        //save preferences
         savePrefRandSong(randSong)
         savePrefMode("classic")
 
