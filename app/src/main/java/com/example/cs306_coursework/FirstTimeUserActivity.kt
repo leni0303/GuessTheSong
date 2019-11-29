@@ -15,7 +15,6 @@ class FirstTimeUserActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_first_time_user)
-
     }
 
     private fun selectRandSong(mode: String): String {
@@ -44,7 +43,7 @@ class FirstTimeUserActivity : AppCompatActivity() {
         savePrefRandSong(randSong)
         savePrefMode("classic")
 
-        val intent = Intent(applicationContext, MainActivity::class.java)
+        val intent = Intent(applicationContext, MapsActivity::class.java)
         startActivity(intent)
     }
 
@@ -54,7 +53,7 @@ class FirstTimeUserActivity : AppCompatActivity() {
         savePrefRandSong(randSong)
         savePrefMode("current")
 
-        val intent = Intent(applicationContext, MainActivity::class.java)
+        val intent = Intent(applicationContext, MapsActivity::class.java)
         startActivity(intent)
     }
 }
