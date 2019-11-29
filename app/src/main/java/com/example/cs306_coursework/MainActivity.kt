@@ -14,6 +14,7 @@ import com.google.android.material.bottomappbar.BottomAppBar
 class MainActivity : AppCompatActivity() {
     private val sharedPreference = "pref"
     private val sharedPreferenceKey = "isFirstTimeUser"
+    var songLyricsList: List<String>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,13 +31,8 @@ class MainActivity : AppCompatActivity() {
             bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
         }
 
-        //retrieve a pref
-        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
+        //get song and put lyrics in a list
 
-        val mode = sharedpreferences.getString("com.example.myapp.MODE", null)
-        val song = sharedpreferences.getString("com.example.myapp.SONG", null)
-        Log.d("TAG", mode)
-        Log.d("TAG", song)
     }
 
     // read a specific song from specific mode from assets
@@ -48,7 +44,15 @@ class MainActivity : AppCompatActivity() {
         return application.assets.open("$mode/$fileName").bufferedReader().readLines()
     }
 
-    fun selectRandSong(mode: String): String {
+    fun SaveSongInList() {
+        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
+        val currentMode = sharedpreferences.getString("com.example.myapp.MODE", null)
+        val currentSong = sharedpreferences.getString("com.example.myapp.SONG", null)
+
+        songLyricsList = readSongLyricsAsList(currentMode, currentSong)
+    }
+
+    private fun selectRandSong(mode: String): String {
         return application.assets.list(mode).random()
     }
 
@@ -87,19 +91,41 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun clickChangeMode(item: MenuItem) {
-        Toast.makeText(this@MainActivity, "Change Mode", Toast.LENGTH_LONG)
-            .show()
+        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
+        val currentMode = sharedpreferences.getString("com.example.myapp.MODE", null)
+        val editor = sharedpreferences.edit()
+
+        if (currentMode == "classic") {
+            editor.putString("com.example.myapp.MODE", "current")
+            //TODO: Choose new song or resume with previous
+        } else {
+            //TODO: Choose new song or resume with previous
+            editor.putString("com.example.myapp.MODE", "classic")
+        }
+        editor.commit()
     }
+
     fun clickChangeSong(item: MenuItem) {
-        Toast.makeText(this@MainActivity, "Chaneg Song", Toast.LENGTH_LONG)
-            .show()
+        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
+        val currentMode = sharedpreferences.getString("com.example.myapp.MODE", null)
+        val currentSong = sharedpreferences.getString("com.example.myapp.SONG", null)
+        val editor = sharedpreferences.edit()
+
+        var randomSong = selectRandSong(currentMode)
+        while(randomSong == currentSong) {
+            randomSong = selectRandSong(currentMode)
+        }
+
+        editor.putString("com.example.myapp.SONG", randomSong)
+        editor.commit()
+
+        SaveSongInList()
     }
     fun clickSongList(item: MenuItem) {
         Toast.makeText(this@MainActivity, "Song List", Toast.LENGTH_LONG)
             .show()
     }
     fun clickQuitApp(item: MenuItem) {
-        Toast.makeText(this@MainActivity, "Quit App", Toast.LENGTH_LONG)
-            .show()
+        finishAndRemoveTask()
     }
 }
