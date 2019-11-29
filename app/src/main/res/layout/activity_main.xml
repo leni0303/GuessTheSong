@@ -32,6 +32,7 @@
         app:layout_anchor="@id/bar"
         app:maxImageSize="40dp"
         app:rippleColor="@color/lavender"
-        app:tint="@color/white" />
+        app:tint="@color/white"
+        android:onClick="fabBtnClick"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

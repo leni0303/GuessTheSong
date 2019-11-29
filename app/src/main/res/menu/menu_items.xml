@@ -5,22 +5,27 @@
         <item
             android:id="@+id/top_songs"
             android:icon="@drawable/top_songs"
-            android:title="@string/top_songs_item" />
+            android:title="@string/top_songs_item"
+            android:onClick="clickTopSongs"/>
         <item
             android:id="@+id/change_mode"
             android:icon="@drawable/swap"
-            android:title="@string/change_mode_item" />
+            android:title="@string/change_mode_item"
+            android:onClick="clickChangeMode"/>
         <item
             android:id="@+id/change_song"
             android:icon="@drawable/swap"
-            android:title="@string/change_song_item" />
+            android:title="@string/change_song_item"
+            android:onClick="clickChangeSong"/>
         <item
             android:id="@+id/song_list"
             android:icon="@drawable/song_list"
-            android:title="@string/song_list_item" />
+            android:title="@string/song_list_item"
+            android:onClick="clickSongList"/>
         <item
             android:id="@+id/quit_app"
             android:icon="@drawable/exit"
-            android:title="@string/quit_app_item" />
+            android:title="@string/quit_app_item"
+            android:onClick="clickQuitApp"/>
     </group>
 </menu>

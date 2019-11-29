@@ -5,14 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import android.content.Intent
-import com.google.android.material.bottomappbar.BottomAppBar
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
-import android.view.Menu
+import android.util.Log
+
 import android.view.MenuItem
 import android.view.View
-
+import com.google.android.material.bottomappbar.BottomAppBar
 
 class MainActivity : AppCompatActivity() {
     private val sharedPreference = "pref"
@@ -22,26 +19,28 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // check if it's a first time user
         checkFirstTimeUser()
 
         // handle menu options for bottom app bar
         val bar = findViewById<BottomAppBar>(R.id.bar)
         bar.setNavigationOnClickListener {
-            Toast.makeText(this@MainActivity, "Navig menu btn click", Toast.LENGTH_LONG)
-                .show()
-            // Handle the navigation click by showing a BottomDrawer etc.
+            // show menu items
             val bottomNavDrawerFragment = BottomNavigationDrawerFragment()
             bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
         }
-
-        // handle fab options for bottom app bar
-        val fab: View = findViewById(R.id.fab)
-        fab.setOnClickListener { view ->
-            Toast.makeText(this@MainActivity, "FAB  btn click", Toast.LENGTH_LONG)
-                .show()
-        }
     }
 
+    // read a specific song from specific mode from assets
+    private fun readSongLyrics(mode: String, fileName: String): String {
+        return application.assets.open("$mode/$fileName").bufferedReader().use { it.readText()}
+    }
+
+    private fun readSongLyricsAsList(mode: String, fileName: String): List<String> {
+        return application.assets.open("$mode/$fileName").bufferedReader().readLines()
+    }
+
+    // check if user opens the app for the first time
     private fun checkFirstTimeUser() {
 
         val isFirstRun = getSharedPreferences(sharedPreference, Context.MODE_PRIVATE)
@@ -57,8 +56,38 @@ class MainActivity : AppCompatActivity() {
             .putBoolean(sharedPreferenceKey, false).apply()
     }
 
+    /*--------------------Handle Btn Clicks--------------------*/
+    // button action for bottom app items
+    fun fabBtnClick(view: View) {
+        Toast.makeText(this@MainActivity, "FAB  btn click", Toast.LENGTH_LONG)
+            .show()
+    }
+
     fun showFavSongs(item: MenuItem) {
         Toast.makeText(this@MainActivity, "Fav btn click", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    // button action for menu items
+    fun clickTopSongs(item: MenuItem) {
+        Toast.makeText(this@MainActivity, "Top Songs", Toast.LENGTH_LONG)
+            .show()
+    }
+
+    fun clickChangeMode(item: MenuItem) {
+        Toast.makeText(this@MainActivity, "Change Mode", Toast.LENGTH_LONG)
+            .show()
+    }
+    fun clickChangeSong(item: MenuItem) {
+        Toast.makeText(this@MainActivity, "Chaneg Song", Toast.LENGTH_LONG)
+            .show()
+    }
+    fun clickSongList(item: MenuItem) {
+        Toast.makeText(this@MainActivity, "Song List", Toast.LENGTH_LONG)
+            .show()
+    }
+    fun clickQuitApp(item: MenuItem) {
+        Toast.makeText(this@MainActivity, "Quit App", Toast.LENGTH_LONG)
             .show()
     }
 }
