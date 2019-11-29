@@ -21,12 +21,11 @@ import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.gms.maps.model.Marker
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     // create a list of markers
-    //val markerList: MutableList<MarkerData> = mutableListOf(MarkerData(1.1,1.1,"dd"))
     val markerList =  emptyList<MarkerData>().toMutableList()
 
     private val sharedPreference = "pref"
@@ -79,6 +78,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.setOnMarkerClickListener(this)
 
         // Add a marker in Sydney and move the camera
         //val sydney = LatLng(51.619543, -3.878634)
@@ -87,6 +87,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         createMarkerList()
         addMarkerListToMap()
+    }
+
+    override fun onMarkerClick(p0: Marker?): Boolean {
+        Log.d("TAG", p0?.title)
+        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     fun getUpdatedLocation() {
