@@ -29,6 +29,14 @@ class MainActivity : AppCompatActivity() {
             val bottomNavDrawerFragment = BottomNavigationDrawerFragment()
             bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
         }
+
+        //retrieve a pref
+        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
+
+        val mode = sharedpreferences.getString("com.example.myapp.MODE", null)
+        val song = sharedpreferences.getString("com.example.myapp.SONG", null)
+        Log.d("TAG", mode)
+        Log.d("TAG", song)
     }
 
     // read a specific song from specific mode from assets
@@ -38,6 +46,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun readSongLyricsAsList(mode: String, fileName: String): List<String> {
         return application.assets.open("$mode/$fileName").bufferedReader().readLines()
+    }
+
+    fun selectRandSong(mode: String): String {
+        return application.assets.list(mode).random()
     }
 
     // check if user opens the app for the first time

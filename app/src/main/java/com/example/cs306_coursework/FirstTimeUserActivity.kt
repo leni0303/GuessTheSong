@@ -8,8 +8,9 @@ import android.view.View
 
 class FirstTimeUserActivity : AppCompatActivity() {
     private val sharedPreferenceName = "pref"
-    private val sharedPreferencesKey = "mode"
-
+    //put in @string
+    private val sharedPreferencesKey = "com.example.myapp.MODE"
+    private val sharedPreferencesKeySong = "com.example.myapp.SONG"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,23 +18,41 @@ class FirstTimeUserActivity : AppCompatActivity() {
 
     }
 
-    fun chooseClassic(view: View) {
+    private fun selectRandSong(mode: String): String {
+        return application.assets.list(mode).random()
+    }
+
+    private fun savePrefMode(mode: String) {
         val sharedpreferences = getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE)
         val editor = sharedpreferences.edit()
 
-        editor.putString(sharedPreferencesKey, "classic")
+        editor.putString(sharedPreferencesKey, mode)
         editor.commit()
+    }
+
+    private fun savePrefRandSong(song: String) {
+        val sharedpreferences = getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE)
+        val editor = sharedpreferences.edit()
+
+        editor.putString(sharedPreferencesKeySong, song)
+        editor.commit()
+    }
+
+    fun chooseClassic(view: View) {
+        val  randSong = selectRandSong("classic")
+
+        savePrefRandSong(randSong)
+        savePrefMode("classic")
 
         val intent = Intent(applicationContext, MainActivity::class.java)
         startActivity(intent)
     }
 
     fun chooseCurrent(view: View) {
-        val sharedpreferences = getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE)
-        val editor = sharedpreferences.edit()
+        val randSong = selectRandSong("current")
 
-        editor.putString(sharedPreferencesKey, "current")
-        editor.commit()
+        savePrefRandSong(randSong)
+        savePrefMode("current")
 
         val intent = Intent(applicationContext, MainActivity::class.java)
         startActivity(intent)
