@@ -1,3 +1,5 @@
 package com.example.cs306_coursework
 
-class MarkerData(val latitutde : Double, val longitude : Double, val title : String)
+import com.google.android.gms.maps.model.LatLng
+
+class MarkerData(val latLng: LatLng, val title : String)

@@ -5,12 +5,12 @@ import android.content.Intent
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import com.google.android.gms.location.*
+import com.google.android.gms.maps.CameraUpdateFactory
 
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -19,19 +19,27 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.gms.maps.model.Marker
+import android.provider.Settings
+import java.util.*
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mMap: GoogleMap
+    // access to system location services
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var lastLocation: Location
     // create a list of markers
     val markerList =  emptyList<MarkerData>().toMutableList()
 
+    //TODO: change with @string text
     private val sharedPreference = "pref"
     private val sharedPreferenceKey = "isFirstTimeUser"
-    //var songLyricsList: List<String>? = null
 
+    // current mode and song
     var song: String? = null
     var mode: String? = null
 
@@ -49,13 +57,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // Create location services Client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        //Get last location
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location : Location? ->
-                // Got last known location. In some rare situations this can be null.
-                var loc = location
-                Log.d("TAG","location" + loc.toString())
-            }
 
         // handle menu options for bottom app bar
         val bar = findViewById<BottomAppBar>(R.id.bar)
@@ -80,91 +81,105 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap = googleMap
         mMap.setOnMarkerClickListener(this)
 
-        // Add a marker in Sydney and move the camera
-        //val sydney = LatLng(51.619543, -3.878634)
-        //mMap.addMarker(MarkerOptions().position(sydney).title("Computational Foundry"))
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
-        createMarkerList()
-        addMarkerListToMap()
+        getCurrentLocation()
     }
 
-    override fun onMarkerClick(p0: Marker?): Boolean {
-        Log.d("TAG", p0?.title)
-        return false
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    private fun getCurrentLocation() {
+        mMap.isMyLocationEnabled = true
 
-    fun getUpdatedLocation() {
-        var mLocationRequest = LocationRequest()
-        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        mLocationRequest.interval = 2000
-        mLocationRequest.fastestInterval = 1000
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        fusedLocationClient!!.requestLocationUpdates(
-            mLocationRequest,mLocationCallback,
-            Looper.myLooper()
-        )
-    }
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                lastLocation = location
+                val currentLatLng = LatLng(location.latitude, location.longitude)
 
-    private val mLocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            var mLastLocation: Location = locationResult.lastLocation
-            var lat = mLastLocation.latitude
-            var long = mLastLocation.longitude
-            val lastLoc = LatLng(lat, long)
+                createMarkerList(currentLatLng, 500)
+                addMarkerListToMap()
+
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+            } else {
+                //TODO: show message that location is not available
+                Log.d("TAG", "Location is not enabled")
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            }
         }
     }
 
-    fun createMarkerList() {
-        //list if lat and long
-        val latitude: DoubleArray = doubleArrayOf(51.619543, 51.618810, 51.617316)
-        val longitude: DoubleArray = doubleArrayOf(-3.878634, -3.878517,  -3.878383)
+
+    override fun onMarkerClick(p0: Marker?): Boolean {
+       // Log.d("TAG", p0?.title)
+        return false
+    }
+
+    private fun createRandomMarkerLatLng(location: LatLng, radius: Int): LatLng {
+        val random = Random()
+
+        // Convert radius from meters to degrees
+        val radiusInDegrees = (radius / 111000f).toDouble()
+
+        val u = random.nextDouble()
+        val v = random.nextDouble()
+        val w = radiusInDegrees * sqrt(u)
+        val t = 2.0 * Math.PI * v
+        val x = w * cos(t)
+        val y = w * sin(t)
+
+        // Adjust the x-coordinate for the shrinking of the east-west distances
+        val newX = x / cos(Math.toRadians(location.latitude))
+
+        val foundLongitude = newX + location.longitude
+        val foundLatitude = y + location.latitude
+
+        return  LatLng(foundLatitude, foundLongitude)
+    }
+
+    private fun createMarkerList(location: LatLng, radius: Int) {
 
         // create a list of lyrics
         val listOfLyrics = readSongLyricsAsList(mode, song)
 
         // create a random lyric and previous lyric
         var randomLyric: String
-        var previousLyric: String? = null
+        var previousLyricsList: MutableList<String> = emptyList<String>().toMutableList()
 
-        for(x in 0..2) {
+        for(x in 0..10) {
 
             // get a random lyrics
             randomLyric = listOfLyrics.random()
             // what do we do with lyrics that repeat each other
             // we get non-repeating lyrics and show all of the repeating lyrics inside text once unlocked
-
-            while (randomLyric == previousLyric) {
+            //TODO: check of lyric is not equal to guessed lyric
+            while (previousLyricsList.contains(randomLyric)) {
                 Log.d("TAG", "both lyrics are equal")
                 randomLyric = listOfLyrics.random()
             }
 
-            val marker = MarkerData(latitude[x],longitude[x], randomLyric)
+            val marker = MarkerData(createRandomMarkerLatLng(location,radius), randomLyric)
             Log.d("TAG", "marker object ${marker.title}")
             markerList.add(marker)
 
-            previousLyric = randomLyric
+            // collect already shown lyrics
+            previousLyricsList.add(randomLyric)
         }
 
         Log.d("TAG", "marker list size ${markerList.size}")
     }
 
-    protected fun addMarkerToMap(
-        latitude: Double,
-        longitude: Double,
+    private fun addMarkerToMap(
+        latLng: LatLng,
         title: String
     ): Marker {
         return mMap.addMarker(
             MarkerOptions()
-                .position(LatLng(latitude, longitude))
+                .position(latLng)
                 .title(title)
         )
     }
 
-    fun addMarkerListToMap() {
+    private fun addMarkerListToMap() {
         for (x in 0 until markerList.size) {
-            addMarkerToMap(markerList[x].latitutde, markerList[x].longitude, markerList[x].title)
+            addMarkerToMap(markerList[x].latLng, markerList[x].title)
         }
     }
     /*------------------------------------MAPS END------------------------------------*/
@@ -250,9 +265,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             editor.putString("com.example.myapp.MODE", "classic")
         }
         editor.commit()
+
+        //TODO: Update local mode
     }
 
     fun clickChangeSong(item: MenuItem) {
+        //TODO: change with local varianles
         val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
         val currentMode = sharedpreferences.getString("com.example.myapp.MODE", null)
         val currentSong = sharedpreferences.getString("com.example.myapp.SONG", null)
@@ -267,6 +285,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         editor.commit()
 
         //saveSongInList()
+        //TODO: update only song
         updateModeAndSong()
     }
     fun clickSongList(item: MenuItem) {
