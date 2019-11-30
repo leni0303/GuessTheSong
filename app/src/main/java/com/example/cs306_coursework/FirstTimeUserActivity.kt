@@ -8,10 +8,13 @@ import android.util.Log
 import android.view.View
 
 class FirstTimeUserActivity : AppCompatActivity() {
+    //TODO:put in @string
     private val sharedPreferenceName = "pref"
-    //put in @string
+    private val sharedPreferenceKeyFirstTimeUser = "isFirstTimeUser"
+
     private val sharedPreferencesKey = "com.example.myapp.MODE"
-    private val sharedPreferencesKeySong = "com.example.myapp.SONG"
+    private val sharedPreferencesKeyClassicSong = "com.example.myapp.CLASSICSONG"
+    private val sharedPreferencesKeyCurrentSong = "com.example.myapp.CURRENTSONG"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +35,16 @@ class FirstTimeUserActivity : AppCompatActivity() {
         editor.commit()
     }
 
-    private fun savePrefRandSong(song: String) {
+    private fun savePrefRandSong(song: String, mode: String) {
         val sharedpreferences = getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE)
         val editor = sharedpreferences.edit()
 
-        editor.putString(sharedPreferencesKeySong, song)
+        if (mode == "classic") {
+            editor.putString(sharedPreferencesKeyClassicSong, song)
+        } else {
+            editor.putString(sharedPreferencesKeyCurrentSong, song)
+        }
+
         editor.commit()
     }
 
@@ -44,8 +52,14 @@ class FirstTimeUserActivity : AppCompatActivity() {
         val  randSong = selectRandSong("classic")
 
         //save preferences
-        savePrefRandSong(randSong)
         savePrefMode("classic")
+        savePrefRandSong(randSong, "classic")
+
+        Log.d("TAG", "START with mode classic and song $randSong")
+
+        // update first time user
+        getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE).edit()
+            .putBoolean(sharedPreferenceKeyFirstTimeUser, false).apply()
 
         val intent = Intent(applicationContext, MapsActivity::class.java)
         startActivity(intent)
@@ -54,8 +68,14 @@ class FirstTimeUserActivity : AppCompatActivity() {
     fun chooseCurrent(view: View) {
         val randSong = selectRandSong("current")
 
-        savePrefRandSong(randSong)
         savePrefMode("current")
+        savePrefRandSong(randSong, "current")
+
+        Log.d("TAG", "START with mode current and song $randSong")
+
+        // update first time user
+        getSharedPreferences(sharedPreferenceName, Context.MODE_PRIVATE).edit()
+            .putBoolean(sharedPreferenceKeyFirstTimeUser, false).apply()
 
         val intent = Intent(applicationContext, MapsActivity::class.java)
         startActivity(intent)
