@@ -1,6 +1,5 @@
 package com.example.cs306_coursework
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -23,10 +22,10 @@ import com.google.android.gms.maps.model.Marker
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import java.util.*
+import kotlin.collections.HashSet
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -34,28 +33,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     // access to system location services
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
+
+    private var radius = 500
+    private var numMarkers = 10
+
     // create a list of markers
-    val markerList =  emptyList<MarkerData>().toMutableList()
+   // private val markerList =  emptyList<MarkerData>().toMutableList()
 
-    //TODO: change with @string text
-    private val sharedPreference = "pref"
-    private val sharedPreferenceKey = "isFirstTimeUser"
-    private val sharedPreferencesKeyClassicSong = "com.example.myapp.CLASSICSONG"
-    private val sharedPreferencesKeyCurrentSong = "com.example.myapp.CURRENTSONG"
-
-    // current mode and song
-    var song: String? = null
-    var mode: String? = null
-
-    //first time user value
-    var isFirstTimeUser: Boolean = true
+    private var ad:AppData? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
+        // initialise AppData
+        ad = AppData.getInstance(this)
+        ad!!.debug()
+
         // check if it's a first time user
-        checkFirstTimeUser()
+        ad!!.checkFirstTimeUser(Intent(this, FirstTimeUserActivity::class.java))
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -89,10 +85,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(this)
 
         askLocationPermission()
-        if (!isFirstTimeUser) {
+        if (!ad!!.firstTimeUser) {
             // get current song and mode as a local variable
-            syncModeAndSong()
             getCurrentLocation()
+        }
+    }
+
+    override fun onMarkerClick(p0: Marker?): Boolean {
+        // Log.d("TAG", p0?.title)
+        return false
+    }
+
+    fun askLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            // TODO: show message that location is not available
+            Log.d("TAG", "Location is not enabled")
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
     }
 
@@ -105,29 +115,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
 
-                Log.d("TAG", "Location mode $mode, song $song")
-                createMarkerList(currentLatLng, 500)
-                addMarkerListToMap()
+                addMarkerListToMap(createMarkerList(currentLatLng, radius))
 
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
             }
         }
     }
 
-    fun askLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            // TODO: show message that location is not available
-            Log.d("TAG", "Location is not enabled")
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(intent)
-        }
-    }
+    private fun createMarkerList(location: LatLng, radius: Int): MutableList<MarkerData> {
 
-    override fun onMarkerClick(p0: Marker?): Boolean {
-       // Log.d("TAG", p0?.title)
-        return false
+        // create a set of unique lyrics
+        //TODO: get list of guessed lyrics and substract from hash set
+        val lyricSet = HashSet<String>(SongDatabase.readSongLyricsAsList(this, ad!!.mode, ad!!.song))
+        lyricSet.removeAll(ad!!.foundLyrics)
+
+        ad!!.debug()
+
+        var i = 0
+        var markerList =  emptyList<MarkerData>().toMutableList()
+
+        //TODO: check of lyric is not equal to guessed lyric
+        for(randLyric in lyricSet.shuffled()) {
+
+            // create only n markers
+            //if (i > numMarkers)
+            //    break
+
+            val marker = MarkerData(createRandomMarkerLatLng(location,radius), randLyric)
+            markerList.add(marker)
+
+            i++
+        }
+
+        return markerList
     }
 
     private fun createRandomMarkerLatLng(location: LatLng, radius: Int): LatLng {
@@ -152,31 +172,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return  LatLng(foundLatitude, foundLongitude)
     }
 
-    private fun createMarkerList(location: LatLng, radius: Int) {
-
-        // create a list of lyrics
-        val listOfLyrics = readSongLyricsAsList(mode, song)
-
-        // create a random lyric and previous lyric
-        var randomLyric: String
-        val previousLyricsList: MutableList<String> = emptyList<String>().toMutableList()
-
-        for(x in 0..9) {
-
-            // get a random lyrics
-            randomLyric = listOfLyrics.random()
-            // what do we do with lyrics that repeat each other
-            // we get non-repeating lyrics and show all of the repeating lyrics inside text once unlocked
-            //TODO: check of lyric is not equal to guessed lyric
-            while (previousLyricsList.contains(randomLyric)) {
-                randomLyric = listOfLyrics.random()
-            }
-
-            val marker = MarkerData(createRandomMarkerLatLng(location,radius), randomLyric)
-            markerList.add(marker)
-
-            // collect already shown lyrics
-            previousLyricsList.add(randomLyric)
+    private fun addMarkerListToMap(markerList: MutableList<MarkerData>) {
+        for (x in 0 until markerList.size) {
+            addMarkerToMap(markerList[x].latLng, markerList[x].title)
         }
     }
 
@@ -190,79 +188,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 .title(title)
         )
     }
-
-    private fun addMarkerListToMap() {
-        for (x in 0 until markerList.size) {
-            addMarkerToMap(markerList[x].latLng, markerList[x].title)
-        }
-    }
     /*------------------------------------MAPS END------------------------------------*/
-
-
-    // read a specific song from specific mode from assets
-    private fun readSongLyrics(mode: String, fileName: String): String {
-        return application.assets.open("$mode/$fileName").bufferedReader().use { it.readText()}
-    }
-
-    private fun readSongLyricsAsList(mode: String?, fileName: String?): List<String> {
-        return application.assets.open("$mode/$fileName").bufferedReader().readLines()
-    }
-
-   /* private fun saveSongInList() {
-        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
-        val currentMode = sharedpreferences.getString("com.example.myapp.MODE", null)
-        val currentSong = sharedpreferences.getString("com.example.myapp.SONG", null)
-
-        Log.d("TAG", "mode $currentMode, song $currentSong")
-        songLyricsList = readSongLyricsAsList(currentMode, currentSong)
-    }*/
-
-    private fun selectRandSong(mode: String): String {
-        return application.assets.list(mode).random()
-    }
-
-    // check if user opens the app for the first time
-    private fun checkFirstTimeUser() {
-        val isFirstRun = getSharedPreferences(sharedPreference, Context.MODE_PRIVATE)
-            .getBoolean(sharedPreferenceKey, true)
-        Log.d("TAG", "isFirstRun $isFirstRun")
-        isFirstTimeUser = isFirstRun
-
-        if (isFirstRun) {
-            startActivity(Intent(this, FirstTimeUserActivity::class.java))
-        }
-    }
-
-    fun syncModeAndSong() {
-        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
-        val currentMode = sharedpreferences.getString("com.example.myapp.MODE", null)
-        mode = currentMode
-
-        if (mode == "classic") {
-            val currentSong = sharedpreferences.getString("com.example.myapp.CLASSICSONG", null)
-            song = currentSong
-            Log.d("TAG", "Update song to $song")
-        } else {
-            val currentSong = sharedpreferences.getString("com.example.myapp.CURRENTSONG", null)
-            song = currentSong
-            Log.d("TAG", "Update song to $song")
-        }
-    }
-
-    private fun saveNewSong(song: String, mode: String) {
-        val sharedpreferences = getSharedPreferences(sharedPreference, Context.MODE_PRIVATE)
-        val editor = sharedpreferences.edit()
-
-        if (mode == "classic") {
-            Log.d("TAG", "Save new song for classic $song")
-            editor.putString(sharedPreferencesKeyClassicSong, song)
-        } else {
-            Log.d("TAG", "Save new song for current $song")
-            editor.putString(sharedPreferencesKeyCurrentSong, song)
-        }
-
-        editor.commit()
-    }
 
     /*--------------------Handle Btn Clicks--------------------*/
     // button action for bottom app items
@@ -283,79 +209,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun clickChangeMode(item: MenuItem) {
-        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
-        val editor = sharedpreferences.edit()
 
-        // switch to current
-        if (mode == "classic") {
+        if (ad!!.mode == "classic") {
+            // switch to current
             // update mode
-            editor.putString("com.example.myapp.MODE", "current")
-            editor.commit()
+            ad!!.savePrefMode("current")
 
-            mode = "current"
+            // get song for this mode
+            ad!!.syncSong()
 
-            //TODO: Choose new song or resume with previous for current
-            // get a saved song for this mode
-            val modeSong =  sharedpreferences.getString("com.example.myapp.CURRENTSONG", null)
+            ad!!.debug()
 
-            if (modeSong == null) {
-                // generate a new song for this mode
-                song = selectRandSong(mode!!)
-                // update new song
-                saveNewSong(song!!, mode!!)
-                // update local variable
-                syncModeAndSong()
-            }else {
-                // update local variable
-                song = modeSong
-
-                Log.d("TAG", "previous song from mode $song")
-
-            }
-
+            //TODO: update markers
         } else {
             // switch to classic
-            editor.putString("com.example.myapp.MODE", "classic")
-            editor.commit()
+            // update mode
+            ad!!.savePrefMode("classic")
 
-            mode = "classic"
+            // get song for this mode
+            ad!!.syncSong()
 
-            //TODO: Choose new song or resume with previous
-            // get a saved song for this mode
-            val modeSong =  sharedpreferences.getString("com.example.myapp.CLASSICSONG", null)
+            ad!!.debug()
 
-            if (modeSong == null) {
-                song = selectRandSong(mode!!)
-                // update new song
-                saveNewSong(song!!, mode!!)
-                // update local variable
-                syncModeAndSong()
-
-            }else {
-                // update local variable
-                song = modeSong
-
-            }
+            //TODO: update markers
         }
     }
 
     fun clickChangeSong(item: MenuItem) {
-        val sharedpreferences = getSharedPreferences("pref", Context.MODE_PRIVATE)
-        val editor = sharedpreferences.edit()
+        // select a random song
+        var randomSong = SongDatabase.selectRandSong(this, ad!!.mode)
 
-        var randomSong = mode?.let { selectRandSong(it) }
-        while(randomSong == song) {
-            randomSong = mode?.let { selectRandSong(it) }
+        Log.d("TAG", "random song $randomSong")
+
+        // keep picking a random song if equal to previous one
+        while(randomSong == ad!!.song) {
+            randomSong = SongDatabase.selectRandSong(this, ad!!.mode)
         }
 
-        if (mode == "classic") {
-            editor.putString("com.example.myapp.CLASSICSONG", randomSong)
-        }else {
-            editor.putString("com.example.myapp.CURRENTSONG", randomSong)
-        }
+        // update song
+        ad!!.savePrefSong(randomSong)
 
-        editor.commit()
-        song = randomSong
+        ad!!.debug()
+        //TODO: update markers
     }
 
     fun clickSongList(item: MenuItem) {
