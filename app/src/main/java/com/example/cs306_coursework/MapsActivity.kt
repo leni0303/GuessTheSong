@@ -21,26 +21,24 @@ import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.gms.maps.model.Marker
 import android.provider.Settings
 import androidx.core.content.ContextCompat
-import java.util.*
+
 import kotlin.collections.HashSet
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var mMap: GoogleMap
     // access to system location services
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var lastLocation: Location
 
     // a set of markers on the map
     private val mapMarkerList =  emptyList<Marker>().toMutableList()
 
-    private var radius = 700
+    // in meters
+    private var radius = 2000
     private var numMarkers = 10
     private var zoom = 12f
-
+    // in km
+    private var minDistance = 0.60
 
     private var ad:AppData? = null
 
@@ -87,16 +85,53 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap.setOnMarkerClickListener(this)
 
         askLocationPermission()
+
         if (!ad!!.firstTimeUser) {
             // get current song and mode as a local variable
-            getCurrentLocation()
+            mMap.isMyLocationEnabled = true
+
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    setUpMap(location)
+                }
+            }
         }
     }
 
     override fun onMarkerClick(p0: Marker?): Boolean {
+        //TODO: make marker unclickable if it's too far away
+        // make a better method for current location
+
+        // get current location
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                val distancePlayerMarker = AppCalculations.findDistance(LatLng(location.latitude, location.longitude), p0!!.position)
+                Log.d("TAG", "distance between $distancePlayerMarker")
+
+                if (distancePlayerMarker < minDistance) {
+                    Toast.makeText(this, p0.title, Toast.LENGTH_LONG)
+                        .show()
+                } else {
+                    Toast.makeText(this, "Get closer to marker", Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+        }
+
         //TODO: deal with exit app swipe
-        ad!!.saveLyric(p0!!.title)
+        /*ad!!.saveLyric(p0!!.title)
         ad!!.debug()
+
+        //TODO: remove marker
+        for (x in mapMarkerList) {
+            if (x.id == p0.id){
+                x.remove()
+                mapMarkerList.remove(x)
+                break
+            }
+        }*/
         return false
     }
 
@@ -110,21 +145,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
-    private fun getCurrentLocation() {
-        mMap.isMyLocationEnabled = true
+    private fun setUpMap(location: Location) {
 
-        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
-            // Got last known location. In some rare situations this can be null.
-            if (location != null) {
-                lastLocation = location
-                val currentLatLng = LatLng(location.latitude, location.longitude)
+        val currentLatLng = LatLng(location.latitude, location.longitude)
 
-                addMarkerListToMap(createMarkerList(currentLatLng, radius))
+        addMarkerListToMap(createMarkerList(currentLatLng, radius))
 
-                if(mMap.cameraPosition.zoom < zoom) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoom))
-                }
-            }
+        if(mMap.cameraPosition.zoom < zoom) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoom))
         }
     }
 
@@ -148,7 +176,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             //if (i > numMarkers)
             //    break
 
-            val marker = MarkerData(createRandomMarkerLatLng(location,radius), randLyric)
+            val marker = MarkerData(AppCalculations.createRandomMarkerLocation(location,radius), randLyric)
             markerList.add(marker)
 
             i++
@@ -157,27 +185,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return markerList
     }
 
-    private fun createRandomMarkerLatLng(location: LatLng, radius: Int): LatLng {
-        val random = Random()
-
-        // Convert radius from meters to degrees
-        val radiusInDegrees = (radius / 111000f).toDouble()
-
-        val u = random.nextDouble()
-        val v = random.nextDouble()
-        val w = radiusInDegrees * sqrt(u)
-        val t = 2.0 * Math.PI * v
-        val x = w * cos(t)
-        val y = w * sin(t)
-
-        // Adjust the x-coordinate for the shrinking of the east-west distances
-        val newX = x / cos(Math.toRadians(location.latitude))
-
-        val foundLongitude = newX + location.longitude
-        val foundLatitude = y + location.latitude
-
-        return  LatLng(foundLatitude, foundLongitude)
-    }
 
     private fun addMarkerListToMap(markerList: MutableList<MarkerData>) {
         for (x in 0 until markerList.size) {
@@ -208,6 +215,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     fun fabBtnClick(view: View) {
         Toast.makeText(this, "FAB  btn click", Toast.LENGTH_LONG)
             .show()
+
+
     }
 
     fun showFavSongs(item: MenuItem) {
@@ -235,7 +244,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
             // clear previous markers and update new ones
             clearMarkers()
-            getCurrentLocation()
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    setUpMap(location)
+                }
+            }
         } else {
             // switch to classic
             // update mode
@@ -248,7 +262,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
             // clear previous markers and update new ones
             clearMarkers()
-            getCurrentLocation()
+            fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+                // Got last known location. In some rare situations this can be null.
+                if (location != null) {
+                    setUpMap(location)
+                }
+            }
         }
     }
 
@@ -271,7 +290,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // clear previous markers and update new ones
         clearMarkers()
-        getCurrentLocation()
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                setUpMap(location)
+            }
+        }
     }
 
     fun clickSongList(item: MenuItem) {

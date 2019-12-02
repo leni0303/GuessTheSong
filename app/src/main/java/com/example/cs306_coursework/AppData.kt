@@ -1,5 +1,6 @@
 package com.example.cs306_coursework
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -48,6 +49,27 @@ class AppData constructor(private val context: Context) {
      * loop each lyric
      * if !found replace with ?
      */
+
+    fun showProgress(activity: Activity) {
+        //list of all lyrics
+        val lyrics = SongDatabase.readSongLyricsAsList(activity, mode, song).toMutableList()
+
+        if (mode == "classic") {
+            for(x in 0 until lyrics.size) {
+                if(!foundLyricsClassic.contains(lyrics[x])) {
+                    lyrics[x] = "???"
+                }
+            }
+        } else {
+            for(x in 0 until lyrics.size) {
+                if(!foundLyricsCurrent.contains(lyrics[x])) {
+                    lyrics[x] = "???"
+                }
+            }
+        }
+
+        Log.d("TAG", "LYRICS $lyrics")
+    }
 
     // list of guessed lyrics
     // method save/add lyric
