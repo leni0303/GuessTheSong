@@ -37,8 +37,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     // a set of markers on the map
     private val mapMarkerList =  emptyList<Marker>().toMutableList()
 
-    private var radius = 500
+    private var radius = 700
     private var numMarkers = 10
+    private var zoom = 12f
 
 
     private var ad:AppData? = null
@@ -99,7 +100,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return false
     }
 
-    fun askLocationPermission() {
+    private fun askLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
@@ -120,7 +121,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
                 addMarkerListToMap(createMarkerList(currentLatLng, radius))
 
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+                if(mMap.cameraPosition.zoom < zoom) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, zoom))
+                }
             }
         }
     }
@@ -134,7 +137,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         ad!!.removeLyricFromSet(lyricSet)
 
         ad!!.debug()
-        Log.d("TAG", "set on map ${lyricSet}")
+        Log.d("TAG", "set on map $lyricSet")
 
         var i = 0
         val markerList =  emptyList<MarkerData>().toMutableList()
@@ -230,8 +233,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
             ad!!.debug()
 
-            //TODO: update markers
-            //TODO: clear markers
+            // clear previous markers and update new ones
             clearMarkers()
             getCurrentLocation()
         } else {
@@ -244,8 +246,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
             ad!!.debug()
 
-            //TODO: update markers
-            //TODO: clear markers
+            // clear previous markers and update new ones
             clearMarkers()
             getCurrentLocation()
         }
@@ -266,10 +267,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         ad!!.savePrefSong(randomSong)
 
         ad!!.debug()
-        //TODO: update markers
         ad!!.clearLyrics()
+
+        // clear previous markers and update new ones
         clearMarkers()
-        //TODO: clear markers
         getCurrentLocation()
     }
 
