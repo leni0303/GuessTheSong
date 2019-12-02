@@ -34,11 +34,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
 
+    // a set of markers on the map
+    private val mapMarkerList =  emptyList<Marker>().toMutableList()
+
     private var radius = 500
     private var numMarkers = 10
 
-    // create a list of markers
-   // private val markerList =  emptyList<MarkerData>().toMutableList()
 
     private var ad:AppData? = null
 
@@ -92,7 +93,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     override fun onMarkerClick(p0: Marker?): Boolean {
-        // Log.d("TAG", p0?.title)
+        //TODO: deal with exit app swipe
+        ad!!.saveLyric(p0!!.title)
+        ad!!.debug()
         return false
     }
 
@@ -125,16 +128,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private fun createMarkerList(location: LatLng, radius: Int): MutableList<MarkerData> {
 
         // create a set of unique lyrics
-        //TODO: get list of guessed lyrics and substract from hash set
         val lyricSet = HashSet<String>(SongDatabase.readSongLyricsAsList(this, ad!!.mode, ad!!.song))
-        lyricSet.removeAll(ad!!.foundLyrics)
+        // remove found lyrics
+        //lyricSet.removeAll(ad!!.foundLyrics)
+        ad!!.removeLyricFromSet(lyricSet)
 
         ad!!.debug()
+        Log.d("TAG", "set on map ${lyricSet}")
 
         var i = 0
-        var markerList =  emptyList<MarkerData>().toMutableList()
+        val markerList =  emptyList<MarkerData>().toMutableList()
 
-        //TODO: check of lyric is not equal to guessed lyric
         for(randLyric in lyricSet.shuffled()) {
 
             // create only n markers
@@ -174,7 +178,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private fun addMarkerListToMap(markerList: MutableList<MarkerData>) {
         for (x in 0 until markerList.size) {
-            addMarkerToMap(markerList[x].latLng, markerList[x].title)
+            mapMarkerList.add(addMarkerToMap(markerList[x].latLng, markerList[x].title))
         }
     }
 
@@ -187,6 +191,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 .position(latLng)
                 .title(title)
         )
+    }
+
+    private fun clearMarkers() {
+        for (x in mapMarkerList) {
+            x.remove()
+        }
     }
     /*------------------------------------MAPS END------------------------------------*/
 
@@ -221,6 +231,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             ad!!.debug()
 
             //TODO: update markers
+            //TODO: clear markers
+            clearMarkers()
+            getCurrentLocation()
         } else {
             // switch to classic
             // update mode
@@ -232,6 +245,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             ad!!.debug()
 
             //TODO: update markers
+            //TODO: clear markers
+            clearMarkers()
+            getCurrentLocation()
         }
     }
 
@@ -251,6 +267,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         ad!!.debug()
         //TODO: update markers
+        ad!!.clearLyrics()
+        clearMarkers()
+        //TODO: clear markers
+        getCurrentLocation()
     }
 
     fun clickSongList(item: MenuItem) {
