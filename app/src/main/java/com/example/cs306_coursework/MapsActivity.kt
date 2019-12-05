@@ -22,6 +22,7 @@ import com.google.android.gms.maps.model.Marker
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomappbar.BottomAppBar
+import com.google.firebase.database.*
 
 import kotlin.collections.HashSet
 
@@ -30,6 +31,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var mMap: GoogleMap
     // access to system location services
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private lateinit var database: DatabaseReference
 
     // a set of markers on the map
     private val mapMarkerList =  emptyList<Marker>().toMutableList()
@@ -49,7 +52,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         // initialise AppData
         ad = AppData.getInstance(this)
+        database = FirebaseDatabase.getInstance().reference
         ad!!.debug()
+
+        //listenToDBChanges()
 
         // check if it's a first time user
         ad!!.checkFirstTimeUser(Intent(this, FirstTimeUserActivity::class.java))
@@ -220,6 +226,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     /*------------------------------------MAPS END------------------------------------*/
 
     /*--------------------Handle Btn Clicks--------------------*/
+
+
+    fun listenToDBChanges() {
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Get Post object and use the values to update the UI
+                val post = dataSnapshot.getValue(Song::class.java)
+                // ...
+
+                Log.d("TAG", " post ${post!!.name}, ${dataSnapshot.child("songs").child("songId").child("likes").value}")
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                Log.w("TAG", "loadPost:onCancelled", databaseError.toException())
+                // ...
+            }
+        }
+        database.addValueEventListener(postListener)
+
+    }
+
     // button action for bottom app items
     fun fabBtnClick(view: View) {
         this.startActivity(Intent(this, GuessSongActivity::class.java))

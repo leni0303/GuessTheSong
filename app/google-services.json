@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1088730621679",
+    "firebase_url": "https://guess-song-da1be.firebaseio.com",
+    "project_id": "guess-song-da1be",
+    "storage_bucket": "guess-song-da1be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088730621679:android:cd4520face83da4c079d1a",
+        "android_client_info": {
+          "package_name": "com.example.cs306_coursework"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088730621679-hk025bmp7kndtp00ml2jgcke6qgtsd1d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyWbElmhMHqqkoXX8-d0Ex8MmNzH_NQtg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088730621679-hk025bmp7kndtp00ml2jgcke6qgtsd1d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
