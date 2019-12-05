@@ -68,6 +68,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val bottomNavDrawerFragment = BottomNavigationDrawerFragment()
             bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
         }
+
+        if (intent.extras != null) {
+            if (intent.extras.getString("songStatus") == "guessed") {
+                Log.d("TAG","spawn new song!!")
+                changeSong()
+            }
+        }
+
     }
 
     /*------------------------------------MAPS Activities START------------------------------------*/
@@ -113,25 +121,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 if (distancePlayerMarker < minDistance) {
                     Toast.makeText(this, p0.title, Toast.LENGTH_LONG)
                         .show()
+
+                    ad!!.saveLyric(p0!!.title)
+                    ad!!.debug()
+                    for (x in mapMarkerList) {
+                        if (x.id == p0.id){
+                            x.remove()
+                            mapMarkerList.remove(x)
+                            break
+                        }
+                    }
+
                 } else {
                     Toast.makeText(this, "Get closer to marker", Toast.LENGTH_LONG)
                         .show()
                 }
             }
         }
-
-        //TODO: deal with exit app swipe
-        /*ad!!.saveLyric(p0!!.title)
-        ad!!.debug()
-
-        //TODO: remove marker
-        for (x in mapMarkerList) {
-            if (x.id == p0.id){
-                x.remove()
-                mapMarkerList.remove(x)
-                break
-            }
-        }*/
         return false
     }
 
@@ -213,10 +219,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     /*--------------------Handle Btn Clicks--------------------*/
     // button action for bottom app items
     fun fabBtnClick(view: View) {
-        Toast.makeText(this, "FAB  btn click", Toast.LENGTH_LONG)
-            .show()
-
-
+        this.startActivity(Intent(this, GuessSongActivity::class.java))
     }
 
     fun showFavSongs(item: MenuItem) {
@@ -273,12 +276,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     fun clickChangeSong(item: MenuItem) {
         // select a random song
+        changeSong()
+    }
+
+    private fun changeSong() {
         var randomSong = SongDatabase.selectRandSong(this, ad!!.mode)
 
         Log.d("TAG", "random song $randomSong")
 
         // keep picking a random song if equal to previous one
-        while(randomSong == ad!!.song) {
+        while(randomSong == ad!!.song && (!ad!!.foundSongs.contains(randomSong))) {
             randomSong = SongDatabase.selectRandSong(this, ad!!.mode)
         }
 

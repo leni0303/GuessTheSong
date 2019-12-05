@@ -6,4 +6,8 @@
     <color name="white">#FFFFFF</color>
     <color name="lavender">#d2b9fc</color>
     <color name="mintGreen">#0BA37A</color>
+    <color name="turquoiseBlue">#61abb4</color>
+    <color name="lightGray">#e5e1e2</color>
+    <color name="darkMintGreen">#0ca37a</color>
+    <color name="orangeYellow">#f6ba0a</color>
 </resources>

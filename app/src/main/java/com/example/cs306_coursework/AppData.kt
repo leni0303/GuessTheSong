@@ -15,10 +15,11 @@ class AppData constructor(private val context: Context) {
     private val classicKey ="com.example.myapp.CLASSICSONG"
     private val currentKey = "com.example.myapp.CURRENTSONG"
     private val firstTimeKey = "com.example.myapp.ISFIRSTTIME"
-    private val foundLyricsKey = "com.example.myapp.FOUNDLYRICS"
 
     private val foundLyricsKeyClassic = "com.example.myapp.FOUNDLYRICSCLASSIC"
     private val foundLyricsKeyCurrent = "com.example.myapp.FOUNDLYRICSCURRENT"
+
+    private val foundSongsKey = "com.example.myapp.FOUNDSONGS"
 
     private val sp =
         context.getSharedPreferences(spName, Context.MODE_PRIVATE)
@@ -27,16 +28,16 @@ class AppData constructor(private val context: Context) {
     var song:String = "nirvana(smells_like_teen_spirit).txt"
     var firstTimeUser: Boolean = sp.getBoolean(firstTimeKey, true)
 
-    //var foundLyrics: MutableSet<String>
-
     var foundLyricsClassic: MutableSet<String>
     var foundLyricsCurrent: MutableSet<String>
 
-    init {
-        //foundLyrics = sp.getStringSet(foundLyricsKey, HashSet<String>())!!
+    var foundSongs: MutableSet<String>
 
+    init {
         foundLyricsClassic = sp.getStringSet(foundLyricsKeyClassic, HashSet<String>())!!
         foundLyricsCurrent = sp.getStringSet(foundLyricsKeyCurrent, HashSet<String>())!!
+
+        foundSongs = sp.getStringSet(foundSongsKey, HashSet<String>())!!
 
         song = if (mode == "classic") {
             sp.getString(classicKey, "nirvana(smells_like_teen_spirit).txt")!!
@@ -45,12 +46,7 @@ class AppData constructor(private val context: Context) {
         }
     }
 
-    /**
-     * loop each lyric
-     * if !found replace with ?
-     */
-
-    fun showProgress(activity: Activity) {
+    fun showProgress(activity: Activity): MutableList<String> {
         //list of all lyrics
         val lyrics = SongDatabase.readSongLyricsAsList(activity, mode, song).toMutableList()
 
@@ -69,12 +65,9 @@ class AppData constructor(private val context: Context) {
         }
 
         Log.d("TAG", "LYRICS $lyrics")
+        return lyrics
     }
 
-    // list of guessed lyrics
-    // method save/add lyric
-    // clear lyrics - gussed lyric or change song
-    // get lyrics - get all lyrics
     fun saveLyric(lyric: String)
     {
         if(mode == "classic") {
@@ -115,6 +108,11 @@ class AppData constructor(private val context: Context) {
         } else {
             sp.getString(currentKey, "ed_sheeran_ft_stormzy(take_me_back_to_london).txt")!!
         }
+    }
+
+    fun saveSong(song:String) {
+        foundSongs.add(song)
+        sp.edit().putStringSet(foundSongsKey, foundSongs).apply()
     }
 
     fun savePrefModeAndSong(modeName: String, songName: String) {
@@ -174,7 +172,8 @@ class AppData constructor(private val context: Context) {
     }
 
     fun debug() {
-        Log.d("TAG", "app data mode $mode, song $song, first time $firstTimeUser,$\n list of guessed classic songs ${foundLyricsClassic},$\n list of guessed current songs ${foundLyricsCurrent}")
+        Log.d("TAG", "app data mode $mode, song $song, first time $firstTimeUser,\n list of guessed classic songs $foundLyricsClassic,\n" +
+                " list of guessed current songs $foundLyricsCurrent, \n found songs $foundSongs")
     }
 }
 
