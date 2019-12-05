@@ -17,10 +17,11 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.material.bottomappbar.BottomAppBar
+
 import com.google.android.gms.maps.model.Marker
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomappbar.BottomAppBar
 
 import kotlin.collections.HashSet
 
@@ -73,6 +74,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             if (intent.extras.getString("songStatus") == "guessed") {
                 Log.d("TAG","spawn new song!!")
                 changeSong()
+
+                intent.extras.putString("songStatus", "not")
             }
         }
 
@@ -306,8 +309,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun clickSongList(item: MenuItem) {
-        Toast.makeText(this, "Song List", Toast.LENGTH_LONG)
-            .show()
+        this.startActivity(Intent(this, SongListActivity::class.java))
     }
     fun clickQuitApp(item: MenuItem) {
         finishAndRemoveTask()

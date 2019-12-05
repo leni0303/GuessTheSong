@@ -20,6 +20,7 @@ class AppData constructor(private val context: Context) {
     private val foundLyricsKeyCurrent = "com.example.myapp.FOUNDLYRICSCURRENT"
 
     private val foundSongsKey = "com.example.myapp.FOUNDSONGS"
+    private val favouriteSongsKey = "com.example.myapp.FAVOURITESONGS"
 
     private val sp =
         context.getSharedPreferences(spName, Context.MODE_PRIVATE)
@@ -32,12 +33,15 @@ class AppData constructor(private val context: Context) {
     var foundLyricsCurrent: MutableSet<String>
 
     var foundSongs: MutableSet<String>
+    var favouriteSongs: MutableSet<String>
+
 
     init {
-        foundLyricsClassic = sp.getStringSet(foundLyricsKeyClassic, HashSet<String>())!!
-        foundLyricsCurrent = sp.getStringSet(foundLyricsKeyCurrent, HashSet<String>())!!
+        foundLyricsClassic = HashSet(sp.getStringSet(foundLyricsKeyClassic, HashSet<String>()))
+        foundLyricsCurrent = HashSet(sp.getStringSet(foundLyricsKeyCurrent, HashSet<String>()))
 
-        foundSongs = sp.getStringSet(foundSongsKey, HashSet<String>())!!
+        foundSongs = HashSet(sp.getStringSet(foundSongsKey, HashSet<String>()))
+        favouriteSongs = HashSet(sp.getStringSet(favouriteSongsKey, HashSet<String>()))
 
         song = if (mode == "classic") {
             sp.getString(classicKey, "nirvana(smells_like_teen_spirit).txt")!!
@@ -73,11 +77,11 @@ class AppData constructor(private val context: Context) {
         if(mode == "classic") {
             foundLyricsClassic.add(lyric)
             // save to preferences
-            sp.edit().putStringSet(foundLyricsKeyClassic, foundLyricsClassic).apply()
+            sp.edit().remove(foundLyricsKeyClassic).putStringSet(foundLyricsKeyClassic, foundLyricsClassic).apply()
         } else {
             foundLyricsCurrent.add(lyric)
             // save to preferences
-            sp.edit().putStringSet(foundLyricsKeyCurrent, foundLyricsCurrent).apply()
+            sp.edit().remove(foundLyricsKeyCurrent).putStringSet(foundLyricsKeyCurrent, foundLyricsCurrent).apply()
         }
     }
 
@@ -112,7 +116,17 @@ class AppData constructor(private val context: Context) {
 
     fun saveSong(song:String) {
         foundSongs.add(song)
-        sp.edit().putStringSet(foundSongsKey, foundSongs).apply()
+        sp.edit().remove(foundSongsKey).putStringSet(foundSongsKey, foundSongs).apply()
+    }
+
+    fun saveFavouriteSong(song:String) {
+        favouriteSongs.add(song)
+        sp.edit().remove(favouriteSongsKey).putStringSet(favouriteSongsKey,favouriteSongs).apply()
+    }
+
+    fun removeFavouriteSong(song:String) {
+        favouriteSongs.remove(song)
+        sp.edit().remove(favouriteSongsKey).putStringSet(favouriteSongsKey,favouriteSongs).apply()
     }
 
     fun savePrefModeAndSong(modeName: String, songName: String) {
@@ -173,7 +187,7 @@ class AppData constructor(private val context: Context) {
 
     fun debug() {
         Log.d("TAG", "app data mode $mode, song $song, first time $firstTimeUser,\n list of guessed classic songs $foundLyricsClassic,\n" +
-                " list of guessed current songs $foundLyricsCurrent, \n found songs $foundSongs")
+                " list of guessed current songs $foundLyricsCurrent, \n found songs $foundSongs \n fav songs $favouriteSongs")
     }
 }
 

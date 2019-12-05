@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="70dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="6dip">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/songName"
+        android:layout_width="248dp"
+        android:layout_height="64dp"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="85dp"
+        android:layout_marginBottom="0dp"
+        android:layout_toRightOf="@id/album"
+        android:fontFamily="serif"
+        android:text="5"
+        android:textColor="@color/common_google_signin_btn_text_dark_focused"
+        android:textSize="18sp" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/album"
+        android:layout_width="60dp"
+        android:layout_height="64dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="6dip"
+        android:layout_marginBottom="0dp"
+        android:src="@drawable/album" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/fav_songs"
+        android:layout_width="wrap_content"
+        android:layout_height="46dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="-66dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="11dp"
+        android:layout_toEndOf="@+id/songName"
+        android:src="@drawable/outline_heart" />
+
+</RelativeLayout>
