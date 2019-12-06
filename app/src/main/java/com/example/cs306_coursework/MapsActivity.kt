@@ -41,7 +41,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     // in meters
     private var radius = 2000
     private var numMarkers = 10
-    private var zoom = 12f
+    private var zoom = 14f
     // in km
     private var minDistance = 0.60
 
@@ -300,6 +300,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 }
             }
         }
+
+        showMarkerStats()
     }
 
     fun clickChangeSong(item: MenuItem) {
@@ -322,6 +324,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         ad!!.debug()
         ad!!.clearLyrics()
+
+        showMarkerStats()
 
         // clear previous markers and update new ones
         clearMarkers()

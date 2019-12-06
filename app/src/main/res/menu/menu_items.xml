@@ -10,7 +10,7 @@
             android:onClick="clickChangeMode"/>
         <item
             android:id="@+id/change_song"
-            android:icon="@drawable/swap"
+            android:icon="@drawable/change_song"
             android:title="@string/change_song_item"
             android:onClick="clickChangeSong"/>
         <item
@@ -20,7 +20,7 @@
             android:onClick="clickSongList"/>
         <item
             android:id="@+id/favourite_songs"
-            android:icon="@drawable/top_songs"
+            android:icon="@drawable/favorite"
             android:title="@string/favourite_songs_item"
             android:onClick="clickFavouriteSongs"/>
         <item

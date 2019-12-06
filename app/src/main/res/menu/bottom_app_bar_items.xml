@@ -5,7 +5,7 @@
 
     <item
         android:id="@+id/app_bar_most_popular_songs"
-        android:icon="@drawable/favorite"
+        android:icon="@drawable/top_songs_heart"
         android:title="@string/most_popular_songs"
         app:showAsAction="always"
         android:onClick="showMostPopularSongs"/>
