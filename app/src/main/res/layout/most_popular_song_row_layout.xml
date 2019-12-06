@@ -20,7 +20,6 @@
         android:layout_marginBottom="4dp"
         android:layout_toRightOf="@id/popularAlbum"
         android:fontFamily="serif"
-        android:text="5"
         android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="18sp" />
 

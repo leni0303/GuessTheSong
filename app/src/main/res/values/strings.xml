@@ -7,6 +7,13 @@
     <string name="change_song_item">Change Song</string>
     <string name="song_list_item">Song List</string>
     <string name="quit_app_item">quitApp</string>
-    <string name="action_fav_songs">favouriteSongs</string>
+    <string name="most_popular_songs">most popular songs</string>
     <string name="title_activity_maps">Map</string>
+    <string name="please_choose_a_mode">Please choose a mode</string>
+    <string name="classic_mode_description">Classic   popular songs over the last 50 years</string>
+    <string name="current_mode_description">Current   popular songs since 30th of September</string>
+    <string name="artist_hint">Artist</string>
+    <string name="title_hint">Title</string>
+    <string name="guess_song">GUESS SONG</string>
+    <string name="_2_50">2/50</string>
 </resources>

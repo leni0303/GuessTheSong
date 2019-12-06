@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/grid"
     android:layout_width="match_parent"
@@ -10,21 +11,71 @@
     android:columnCount="2"
     tools:context=".FirstTimeUserActivity">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/material_button_classic"
-        android:onClick="chooseClassic"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Classic"/>
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="318dp"
+        android:layout_height="394dp"
+        android:layout_row="0"
+        android:layout_column="0"
+        android:minHeight="200dp"
+        app:cardBackgroundColor="@color/darkMintGreen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/material_button_current"
-        android:onClick="chooseCurrent"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Current"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/please_choose_a_mode"
+                android:textColor="@color/common_google_signin_btn_text_dark_default"
+                android:textSize="28sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-</GridLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/material_button_classic"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="189dp"
+                android:layout_height="118dp"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:layout_marginTop="36dp"
+                android:onClick="chooseClassic"
+                android:text="@string/classic_mode_description"
+                android:textAlignment="center"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="12sp"
+                app:backgroundTint="@color/orangeYellow"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/material_button_current"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="189dp"
+                android:layout_height="118dp"
+                android:layout_marginTop="24dp"
+                android:onClick="chooseCurrent"
+                android:text="@string/current_mode_description"
+                android:textAlignment="center"
+                android:textColor="@color/common_google_signin_btn_text_dark_focused"
+                android:textSize="12sp"
+                app:backgroundTint="@color/lavender"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.503"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/material_button_classic" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

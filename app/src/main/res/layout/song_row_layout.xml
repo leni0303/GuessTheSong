@@ -19,7 +19,6 @@
         android:layout_marginBottom="0dp"
         android:layout_toRightOf="@id/album"
         android:fontFamily="serif"
-        android:text="5"
         android:textColor="@color/common_google_signin_btn_text_dark_focused"
         android:textSize="18sp" />
 

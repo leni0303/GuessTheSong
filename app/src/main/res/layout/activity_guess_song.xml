@@ -62,7 +62,7 @@
             android:id="@+id/titleInputText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title" />
+            android:hint="@string/title_hint" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,7 +82,7 @@
             android:id="@+id/artistInputText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Artist" />
+            android:hint="@string/artist_hint" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -92,7 +92,7 @@
         android:layout_height="61dp"
         android:fontFamily="sans-serif-black"
         android:onClick="guessSong"
-        android:text="GUESS SONG"
+        android:text="@string/guess_song"
         android:textSize="22sp"
         app:backgroundTint="@color/lavender"
         app:cornerRadius="10dp"
