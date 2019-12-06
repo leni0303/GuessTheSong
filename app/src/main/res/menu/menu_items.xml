@@ -2,11 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="none">
-        <item
-            android:id="@+id/top_songs"
-            android:icon="@drawable/top_songs"
-            android:title="@string/top_songs_item"
-            android:onClick="clickTopSongs"/>
+
         <item
             android:id="@+id/change_mode"
             android:icon="@drawable/swap"
@@ -22,6 +18,11 @@
             android:icon="@drawable/song_list"
             android:title="@string/song_list_item"
             android:onClick="clickSongList"/>
+        <item
+            android:id="@+id/favourite_songs"
+            android:icon="@drawable/top_songs"
+            android:title="@string/favourite_songs_item"
+            android:onClick="clickFavouriteSongs"/>
         <item
             android:id="@+id/quit_app"
             android:icon="@drawable/exit"

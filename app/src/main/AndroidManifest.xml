@@ -15,7 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SongListActivity"></activity>
+        <activity android:name=".FavouriteSongListActivity"></activity>
+        <activity android:name=".MostPopularSongsActivity" />
+        <activity android:name=".FoundSongsListActivity" />
         <activity android:name=".GuessSongActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

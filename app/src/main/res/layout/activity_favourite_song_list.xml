@@ -1,0 +1,11 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/fav_relative_Layout">
+    <!--  A RecyclerView with some commonly used attributes  -->
+    <view class="androidx.recyclerview.widget.RecyclerView"
+        android:id="@+id/favourite_songs_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"/>
+</RelativeLayout>

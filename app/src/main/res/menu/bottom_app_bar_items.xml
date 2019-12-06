@@ -4,10 +4,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/app_bar_fav_songs"
+        android:id="@+id/app_bar_most_popular_songs"
         android:icon="@drawable/favorite"
         android:title="@string/action_fav_songs"
         app:showAsAction="always"
-        android:onClick="showFavSongs"/>
+        android:onClick="showMostPopularSongs"/>
 
 </menu>

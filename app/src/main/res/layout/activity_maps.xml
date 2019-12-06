@@ -5,6 +5,27 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/marker_num"
+        android:layout_width="67dp"
+        android:layout_height="27dp"
+        android:layout_margin="20dp"
+        android:layout_marginLeft="@dimen/mtrl_card_spacing"
+        android:layout_marginTop="@dimen/mtrl_card_spacing"
+        android:layout_marginRight="@dimen/mtrl_card_spacing"
+        android:minHeight="200dp"
+        app:cardBackgroundColor="@color/orangeYellow">
+
+        <TextView
+            android:id="@+id/marker_num_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="sans-serif-black"
+            android:text="2/50 "
+            android:textAlignment="center"
+            android:textSize="18sp" />
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- Other components and views -->
     <fragment xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"

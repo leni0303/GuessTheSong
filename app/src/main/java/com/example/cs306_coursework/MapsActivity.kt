@@ -20,6 +20,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 
 import com.google.android.gms.maps.model.Marker
 import android.provider.Settings
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.firebase.database.*
@@ -46,6 +47,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private var ad:AppData? = null
 
+    var markerStatText: TextView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -55,10 +58,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         database = FirebaseDatabase.getInstance().reference
         ad!!.debug()
 
-        //listenToDBChanges()
-
         // check if it's a first time user
         ad!!.checkFirstTimeUser(Intent(this, FirstTimeUserActivity::class.java))
+
+        markerStatText = findViewById(R.id.marker_num_text)
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -111,28 +114,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
                     setUpMap(location)
+
+                    showMarkerStats()
                 }
             }
         }
     }
 
     override fun onMarkerClick(p0: Marker?): Boolean {
-        //TODO: make marker unclickable if it's too far away
-        // make a better method for current location
-
         // get current location
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             // Got last known location. In some rare situations this can be null.
             if (location != null) {
                 val distancePlayerMarker = AppCalculations.findDistance(LatLng(location.latitude, location.longitude), p0!!.position)
-                Log.d("TAG", "distance between $distancePlayerMarker")
 
+                // hide title
+                p0.hideInfoWindow()
+
+                // check if player is close enough
                 if (distancePlayerMarker < minDistance) {
                     Toast.makeText(this, p0.title, Toast.LENGTH_LONG)
                         .show()
 
+                    // save marker to preferences
                     ad!!.saveLyric(p0!!.title)
                     ad!!.debug()
+                    // remove marker from the map
                     for (x in mapMarkerList) {
                         if (x.id == p0.id){
                             x.remove()
@@ -140,6 +147,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                             break
                         }
                     }
+
+                    showMarkerStats()
 
                 } else {
                     Toast.makeText(this, "Get closer to marker", Toast.LENGTH_LONG)
@@ -151,19 +160,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun askLocationPermission() {
+        // Permission is not granted
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
-            // TODO: show message that location is not available
-            Log.d("TAG", "Location is not enabled")
+            // send user to settings permission
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
     }
 
     private fun setUpMap(location: Location) {
-
+        // current location
         val currentLatLng = LatLng(location.latitude, location.longitude)
-
+        // create a marker list and add individual markers to map
         addMarkerListToMap(createMarkerList(currentLatLng, radius))
 
         if(mMap.cameraPosition.zoom < zoom) {
@@ -176,11 +184,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // create a set of unique lyrics
         val lyricSet = HashSet<String>(SongDatabase.readSongLyricsAsList(this, ad!!.mode, ad!!.song))
         // remove found lyrics
-        //lyricSet.removeAll(ad!!.foundLyrics)
         ad!!.removeLyricFromSet(lyricSet)
 
         ad!!.debug()
-        Log.d("TAG", "set on map $lyricSet")
 
         var i = 0
         val markerList =  emptyList<MarkerData>().toMutableList()
@@ -191,6 +197,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             //if (i > numMarkers)
             //    break
 
+            // create a marker with a random location
             val marker = MarkerData(AppCalculations.createRandomMarkerLocation(location,radius), randLyric)
             markerList.add(marker)
 
@@ -223,45 +230,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             x.remove()
         }
     }
+
+    private fun showMarkerStats() {
+        val currentProgress:Int
+        val total = mapMarkerList.size
+
+        if(ad!!.mode == "classic") {
+            currentProgress = ad!!.foundLyricsClassic.size
+        } else {
+            currentProgress = ad!!.foundLyricsCurrent.size
+        }
+
+        markerStatText!!.text = "$currentProgress / $total"
+    }
     /*------------------------------------MAPS END------------------------------------*/
 
     /*--------------------Handle Btn Clicks--------------------*/
-
-
-    fun listenToDBChanges() {
-        val postListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // Get Post object and use the values to update the UI
-                val post = dataSnapshot.getValue(Song::class.java)
-                // ...
-
-                Log.d("TAG", " post ${post!!.name}, ${dataSnapshot.child("songs").child("songId").child("likes").value}")
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-                Log.w("TAG", "loadPost:onCancelled", databaseError.toException())
-                // ...
-            }
-        }
-        database.addValueEventListener(postListener)
-
-    }
 
     // button action for bottom app items
     fun fabBtnClick(view: View) {
         this.startActivity(Intent(this, GuessSongActivity::class.java))
     }
 
-    fun showFavSongs(item: MenuItem) {
-        Toast.makeText(this, "Fav btn click", Toast.LENGTH_LONG)
-            .show()
+    fun showMostPopularSongs(item: MenuItem) {
+        this.startActivity(Intent(this, MostPopularSongsActivity::class.java))
     }
 
     // button action for menu items
-    fun clickTopSongs(item: MenuItem) {
-        Toast.makeText(this, "Top Songs", Toast.LENGTH_LONG)
-            .show()
+    fun clickFavouriteSongs(item: MenuItem) {
+        this.startActivity(Intent(this, FavouriteSongListActivity::class.java))
     }
 
     fun clickChangeMode(item: MenuItem) {
@@ -337,7 +334,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     fun clickSongList(item: MenuItem) {
-        this.startActivity(Intent(this, SongListActivity::class.java))
+        this.startActivity(Intent(this, FoundSongsListActivity::class.java))
     }
     fun clickQuitApp(item: MenuItem) {
         finishAndRemoveTask()

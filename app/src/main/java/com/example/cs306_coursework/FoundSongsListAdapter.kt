@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 
-class SongAdapter(private val songModelArrayList: MutableList<SongListModel>, private val appData: AppData ) :
-    RecyclerView.Adapter<SongAdapter.ViewHolder>() {
+class FoundSongsListAdapter(private val foundSongsModelArrayList: MutableList<FoundSongsListModel>, private val appData: AppData ) :
+    RecyclerView.Adapter<FoundSongsListAdapter.ViewHolder>() {
 
     private lateinit var database: DatabaseReference
 
@@ -32,43 +32,37 @@ class SongAdapter(private val songModelArrayList: MutableList<SongListModel>, pr
         return ViewHolder(v)
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val info = songModelArrayList[position]
+        val songModel = foundSongsModelArrayList[position]
 
-        val songInfo = info.getSongTitle() + "\n" + info.getSongArtist()
-        val firebaseSongId = info.getSongId().removeSuffix(".txt")
 
-        holder.txtMsg.text = songInfo
-        holder.imgView.setImageResource(info.getImage_drawables())
+        holder.txtMsg.text = songModel.title + "\n" + songModel.artist
+        holder.imgView.setImageResource(songModel.image_status_drawable)
         holder.txtMsg.setOnClickListener {v ->
 
-            if (appData.favouriteSongs.contains(info.getSongId())) {
+            if (appData.favouriteSongs.contains(songModel.id)) {
                 // remove song from favourites
-                appData.removeFavouriteSong(info.getSongId())
+                appData.removeFavouriteSong(songModel.id)
 
                 //update firebase db
-                FirebaseDatabaseManager.readLikes(database, firebaseSongId, info.getSongTitle()) {
-                        value -> FirebaseDatabaseManager.updateLikes(database, firebaseSongId, info.getSongTitle(), value - 1 )
-                }
+                FirebaseDatabaseManager.removeLike(database, songModel)
 
                 holder.imgView.setImageResource(R.drawable.outline_heart)
-                Snackbar.make(v, "Song ${info.getSongTitle()} has been removed from favs", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(v, "Song ${songModel.title} has been removed from favs", Snackbar.LENGTH_LONG).show()
             } else {
                 // add song to favourites
-                appData.saveFavouriteSong(info.getSongId())
+                appData.saveFavouriteSong(songModel.id)
                 holder.imgView.setImageResource(R.drawable.heart_black)
 
                 Log.d("db", "click")
                 // update firebase song
-                FirebaseDatabaseManager.readLikes(database, firebaseSongId, info.getSongTitle()) {
-                        value -> FirebaseDatabaseManager.updateLikes(database, firebaseSongId, info.getSongTitle(), value + 1 )
-                }
+                FirebaseDatabaseManager.addLike(database, songModel)
 
-                Snackbar.make(v, "Song ${info.getSongTitle()} has been added to favs", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(v, "Song ${songModel.title} has been added to favs", Snackbar.LENGTH_LONG).show()
             }
         }
     }
     override fun getItemCount(): Int {
-        return songModelArrayList.size
+        return foundSongsModelArrayList.size
     }
 
 }
