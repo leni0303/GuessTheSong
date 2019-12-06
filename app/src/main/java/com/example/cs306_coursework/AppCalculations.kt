@@ -6,6 +6,9 @@ import kotlin.random.Random
 
 object AppCalculations {
 
+    /**
+     * create a random location for a marker within a radius relevant to the player
+     */
     fun createRandomMarkerLocation(currentLocation: LatLng, radius: Int): LatLng {
 
         // Convert radius from meters to degrees
@@ -27,6 +30,9 @@ object AppCalculations {
         return  LatLng(foundLatitude, foundLongitude)
     }
 
+    /**
+     * find a distance between two points
+     */
     fun findDistance(point1: LatLng, point2: LatLng): Double {
         val lon1 = Math.toRadians(point1.longitude)
         val lon2 = Math.toRadians(point2.longitude)

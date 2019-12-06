@@ -40,7 +40,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     // in meters
     private var radius = 2000
+    // cap on markers number to be spawned on map
     private var numMarkers = 10
+    // zoom for camera
     private var zoom = 14f
     // in km
     private var minDistance = 0.60
@@ -79,6 +81,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             bottomNavDrawerFragment.show(supportFragmentManager, bottomNavDrawerFragment.tag)
         }
 
+        // reset song status
         if (intent.extras != null) {
             if (intent.extras.getString("songStatus") == "guessed") {
                 Log.d("TAG","spawn new song!!")
@@ -90,7 +93,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     }
 
-    /*------------------------------------MAPS Activities START------------------------------------*/
+    /*------------------------------------MAP Activities ------------------------------------*/
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -104,6 +107,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mMap = googleMap
         mMap.setOnMarkerClickListener(this)
 
+        // see if app has permission
         askLocationPermission()
 
         if (!ad!!.firstTimeUser) {
@@ -113,8 +117,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
+                    // spawn markers on map
                     setUpMap(location)
-
+                    // get a number of found lyrics and total lyrics shown on map
                     showMarkerStats()
                 }
             }
@@ -131,7 +136,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 // hide title
                 p0.hideInfoWindow()
 
-                // check if player is close enough
+                // check if player is close enough to marker
                 if (distancePlayerMarker < minDistance) {
                     Toast.makeText(this, p0.title, Toast.LENGTH_LONG)
                         .show()
@@ -139,7 +144,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     // save marker to preferences
                     ad!!.saveLyric(p0!!.title)
                     ad!!.debug()
-                    // remove marker from the map
+                    // remove marker from the map and list
                     for (x in mapMarkerList) {
                         if (x.id == p0.id){
                             x.remove()
@@ -147,11 +152,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                             break
                         }
                     }
-
                     showMarkerStats()
-
                 } else {
-                    Toast.makeText(this, "Get closer to marker", Toast.LENGTH_LONG)
+                    Toast.makeText(this, R.string.get_closer, Toast.LENGTH_LONG)
                         .show()
                 }
             }
@@ -159,15 +162,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return false
     }
 
-    private fun askLocationPermission() {
-        // Permission is not granted
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            // send user to settings permission
-            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        }
-    }
-
+    /**
+     * add markers to map relative to current location
+     */
     private fun setUpMap(location: Location) {
         // current location
         val currentLatLng = LatLng(location.latitude, location.longitude)
@@ -179,6 +176,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    /**
+     * create a marker with random lyrics and random location
+     */
     private fun createMarkerList(location: LatLng, radius: Int): MutableList<MarkerData> {
 
         // create a set of unique lyrics
@@ -186,9 +186,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         // remove found lyrics
         ad!!.removeLyricFromSet(lyricSet)
 
-        ad!!.debug()
-
-        var i = 0
+        //var i = 0
         val markerList =  emptyList<MarkerData>().toMutableList()
 
         for(randLyric in lyricSet.shuffled()) {
@@ -201,19 +199,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val marker = MarkerData(AppCalculations.createRandomMarkerLocation(location,radius), randLyric)
             markerList.add(marker)
 
-            i++
+            //i++
         }
 
         return markerList
     }
 
 
+    /**
+     * spawn marker on map
+     */
     private fun addMarkerListToMap(markerList: MutableList<MarkerData>) {
         for (x in 0 until markerList.size) {
             mapMarkerList.add(addMarkerToMap(markerList[x].latLng, markerList[x].title))
         }
     }
 
+    /**
+     * create a marker object
+     */
     private fun addMarkerToMap(
         latLng: LatLng,
         title: String
@@ -225,27 +229,43 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         )
     }
 
+    /**
+     * remove marker
+     */
     private fun clearMarkers() {
         for (x in mapMarkerList) {
             x.remove()
         }
     }
+    /*------------------------------------MAPS Activities------------------------------------*/
 
-    private fun showMarkerStats() {
-        val currentProgress:Int
-        val total = mapMarkerList.size
-
-        if(ad!!.mode == "classic") {
-            currentProgress = ad!!.foundLyricsClassic.size
-        } else {
-            currentProgress = ad!!.foundLyricsCurrent.size
+    /**
+     * Take user to setting to enable location permission
+     */
+    private fun askLocationPermission() {
+        // Permission is not granted
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            // send user to settings permission
+            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
+    }
+
+    /**
+     * show found markers and number of markers shown on the map
+     */
+    private fun showMarkerStats() {
+        val currentProgress:Int = if(ad!!.mode == "classic") {
+            ad!!.foundLyricsClassic.size
+        } else {
+            ad!!.foundLyricsCurrent.size
+        }
+        val total = mapMarkerList.size
 
         markerStatText!!.text = "$currentProgress / $total"
     }
-    /*------------------------------------MAPS END------------------------------------*/
 
-    /*--------------------Handle Btn Clicks--------------------*/
+    /*------------------------------------Handle Btn Clicks------------------------------------*/
 
     // button action for bottom app items
     fun fabBtnClick(view: View) {
@@ -278,6 +298,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
+                    // spawn new markers
                     setUpMap(location)
                 }
             }
@@ -296,11 +317,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
                 // Got last known location. In some rare situations this can be null.
                 if (location != null) {
+                    // spawn new markers
                     setUpMap(location)
                 }
             }
         }
-
         showMarkerStats()
     }
 
@@ -310,23 +331,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun changeSong() {
+        // select a random song
         var randomSong = SongDatabase.selectRandSong(this, ad!!.mode)
 
-        Log.d("TAG", "random song $randomSong")
-
-        // keep picking a random song if equal to previous one
+        // keep picking a random song if equal to previous one or to found songs
         while(randomSong == ad!!.song && (!ad!!.foundSongs.contains(randomSong))) {
             randomSong = SongDatabase.selectRandSong(this, ad!!.mode)
         }
 
         // update song
         ad!!.savePrefSong(randomSong)
-
-        ad!!.debug()
+        // clear list of found lyrics
         ad!!.clearLyrics()
 
         showMarkerStats()
-
+        ad!!.debug()
         // clear previous markers and update new ones
         clearMarkers()
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->

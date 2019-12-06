@@ -34,7 +34,6 @@ class FoundSongsListAdapter(private val foundSongsModelArrayList: MutableList<Fo
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val songModel = foundSongsModelArrayList[position]
 
-
         holder.txtMsg.text = songModel.title + "\n" + songModel.artist
         holder.imgView.setImageResource(songModel.image_status_drawable)
         holder.txtMsg.setOnClickListener {v ->
@@ -42,21 +41,18 @@ class FoundSongsListAdapter(private val foundSongsModelArrayList: MutableList<Fo
             if (appData.favouriteSongs.contains(songModel.id)) {
                 // remove song from favourites
                 appData.removeFavouriteSong(songModel.id)
-
                 //update firebase db
                 FirebaseDatabaseManager.removeLike(database, songModel)
-
+                // update image
                 holder.imgView.setImageResource(R.drawable.outline_heart)
                 Snackbar.make(v, "Song ${songModel.title} has been removed from favs", Snackbar.LENGTH_LONG).show()
             } else {
                 // add song to favourites
                 appData.saveFavouriteSong(songModel.id)
+                // update image
                 holder.imgView.setImageResource(R.drawable.heart_black)
-
-                Log.d("db", "click")
                 // update firebase song
                 FirebaseDatabaseManager.addLike(database, songModel)
-
                 Snackbar.make(v, "Song ${songModel.title} has been added to favs", Snackbar.LENGTH_LONG).show()
             }
         }

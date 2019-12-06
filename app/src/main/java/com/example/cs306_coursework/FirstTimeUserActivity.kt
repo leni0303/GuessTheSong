@@ -14,26 +14,21 @@ class FirstTimeUserActivity : AppCompatActivity() {
         setContentView(R.layout.activity_first_time_user)
 
         ad = AppData.getInstance(this)
-
-        Log.d("TAG", "It's a first time user")
     }
 
-    private fun selectRandSong(mode: String): String {
-        return application.assets.list(mode).random()
-    }
-
+    /**
+     * change to the main activity
+     */
     private fun changeActivity() {
         val intent = Intent(applicationContext, MapsActivity::class.java)
         startActivity(intent)
     }
 
     fun chooseClassic(view: View) {
-        val  randSong = selectRandSong("classic")
+        val  randSong = SongDatabase.selectRandSong(this,"classic")
 
         // save preferences
         ad?.savePrefModeAndSong("classic", randSong)
-
-        Log.d("TAG", "START with mode classic and song $randSong")
 
         // update first time user
         ad?.savePrefFirstTime()
@@ -42,12 +37,10 @@ class FirstTimeUserActivity : AppCompatActivity() {
     }
 
     fun chooseCurrent(view: View) {
-        val randSong = selectRandSong("current")
+        val randSong = SongDatabase.selectRandSong(this, "current")
 
         // save preferences
         ad?.savePrefModeAndSong("current", randSong)
-
-        Log.d("TAG", "START with mode current and song $randSong")
 
         // update first time user
         ad?.savePrefFirstTime()

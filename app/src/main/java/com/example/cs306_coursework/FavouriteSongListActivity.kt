@@ -25,6 +25,9 @@ class FavouriteSongListActivity : AppCompatActivity() {
         recyclerView.adapter = mAdapter
     }
 
+    /**
+     * populate array with favourite songs
+     */
     private fun populateList(): ArrayList<FoundSongsListModel> {
 
         var song: Pair<CharSequence, CharSequence>

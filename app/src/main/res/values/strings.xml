@@ -16,4 +16,8 @@
     <string name="title_hint">Title</string>
     <string name="guess_song">GUESS SONG</string>
     <string name="_2_50">2/50</string>
+    <string name="no_lyric">Try and collect a lyric first</string>
+    <string name="congrats">Congrats you guessed the song!</string>
+    <string name="guess_again">Guess again</string>
+    <string name="get_closer">Get closer to marker</string>
 </resources>

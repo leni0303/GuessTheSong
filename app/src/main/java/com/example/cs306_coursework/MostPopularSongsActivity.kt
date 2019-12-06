@@ -11,11 +11,10 @@ import android.widget.ListView
 class MostPopularSongsActivity : AppCompatActivity() {
 
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
-    var listItems = ArrayList<FirebaseDatabaseManager.Song>()
+    private var listItems = ArrayList<FirebaseDatabaseManager.Song>()
 
     private lateinit var database: DatabaseReference
     private lateinit var listView: ListView
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +28,9 @@ class MostPopularSongsActivity : AppCompatActivity() {
 
         FirebaseDatabaseManager.getMostPopular(database) {
                 psongs -> for (x in psongs.reversed()){
+            // get firebase data
             listItems.add(x)
+            // notify that data has been changed
             adapter.notifyDataSetChanged()
 
         }

@@ -7,6 +7,9 @@ data class FoundSongsListModel (
     var image_status_drawable: Int = 0
 )
 {
+    /**
+     * remove text extension
+     */
     fun firebaseId(): String
     {
         return id.removeSuffix(".txt")

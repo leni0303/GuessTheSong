@@ -13,8 +13,6 @@ import com.google.firebase.database.*
 class FavouriteSongsListAdapter(private val foundSongsModelArrayList: MutableList<FoundSongsListModel>, private val appData: AppData ) :
     RecyclerView.Adapter<FavouriteSongsListAdapter.ViewHolder>() {
 
-    private lateinit var database: DatabaseReference
-
     inner class ViewHolder(var layout: View) : RecyclerView.ViewHolder(layout) {
         var txtMsg: TextView
         var imgView: ImageView
@@ -22,8 +20,6 @@ class FavouriteSongsListAdapter(private val foundSongsModelArrayList: MutableLis
         init {
             txtMsg = layout.findViewById<View>(R.id.songName) as TextView
             imgView = layout.findViewById<View>(R.id.fav_songs) as ImageView
-
-            database = FirebaseDatabase.getInstance().reference
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,8 +29,7 @@ class FavouriteSongsListAdapter(private val foundSongsModelArrayList: MutableLis
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val songModel = foundSongsModelArrayList[position]
-
-
+        //show text and liked button
         holder.txtMsg.text = songModel.title + "\n" + songModel.artist
         holder.imgView.setImageResource(songModel.image_status_drawable)
 

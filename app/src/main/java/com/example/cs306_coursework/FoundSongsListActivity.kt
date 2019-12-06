@@ -25,6 +25,9 @@ class FoundSongsListActivity : AppCompatActivity() {
         recyclerView.adapter = mAdapter
     }
 
+    /**
+     * create a list of found songs
+     */
     private fun populateList(): ArrayList<FoundSongsListModel> {
 
         var song: Pair<CharSequence, CharSequence>
@@ -33,14 +36,17 @@ class FoundSongsListActivity : AppCompatActivity() {
         for (x in ad!!.foundSongs) {
             song = SongDatabase.readArtistAndSong(x)
 
+            // create a model of a song
             val songListModel = FoundSongsListModel()
             songListModel.artist = song.first.toString()
             songListModel.title = song.second.toString()
             songListModel.id = x
 
+            // song is in favourite list
             if(ad!!.favouriteSongs.contains(x)) {
                 songListModel.image_status_drawable = R.drawable.heart_black
             } else {
+                //song is not in favourite list
                 songListModel.image_status_drawable = R.drawable.outline_heart
             }
 

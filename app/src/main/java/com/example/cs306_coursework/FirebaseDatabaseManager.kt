@@ -10,11 +10,17 @@ object FirebaseDatabaseManager {
 
     data class Song( val name:String? = "", val likes:Int? = 0)
 
+    /**
+     * update likes counter in the db
+     */
     private fun updateLikes(database: DatabaseReference, foundSongsModel: FoundSongsListModel, likes:Int) {
         // Write a message to the database
         database.child("songs").child(foundSongsModel.firebaseId()).setValue(Song(foundSongsModel.title, likes))
     }
 
+    /**
+     * get likes for a song from the db
+     */
     private fun readLikes(database:DatabaseReference, foundSongsModel: FoundSongsListModel, onLikes: (Int)->Any) {
         database.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -39,16 +45,25 @@ object FirebaseDatabaseManager {
         })
     }
 
+    /**
+     * add a like
+     */
     fun addLike(database: DatabaseReference, foundSongsModel: FoundSongsListModel)
     {
         readLikes(database, foundSongsModel) { value -> updateLikes(database, foundSongsModel, value + 1 ) }
     }
 
+    /**
+     * remove a like
+     */
     fun removeLike(database: DatabaseReference, foundSongsModel: FoundSongsListModel)
     {
         readLikes(database, foundSongsModel) { value -> updateLikes(database, foundSongsModel, value - 1 ) }
     }
 
+    /**
+     * get a list with all of the songs that have been favourited by players
+     */
     fun getMostPopular(database: DatabaseReference, onSongs: (List<Song>)->Any)
     {
         database.addListenerForSingleValueEvent(object : ValueEventListener {

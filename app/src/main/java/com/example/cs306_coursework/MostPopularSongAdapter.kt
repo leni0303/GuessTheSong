@@ -34,6 +34,4 @@ class MostPopularSongAdapter(private val context: Context,
 
         return rowView
     }
-
-
 }

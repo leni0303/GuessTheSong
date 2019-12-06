@@ -37,6 +37,7 @@ class AppData constructor(private val context: Context) {
 
 
     init {
+        // initialise all of the shared prefs keys
         foundLyricsClassic = HashSet(sp.getStringSet(foundLyricsKeyClassic, HashSet<String>()))
         foundLyricsCurrent = HashSet(sp.getStringSet(foundLyricsKeyCurrent, HashSet<String>()))
 
@@ -50,41 +51,51 @@ class AppData constructor(private val context: Context) {
         }
     }
 
+    /**
+     * show the song lyrics as "???" and reveal the found one's along them
+     */
     fun showProgress(activity: Activity): MutableList<String> {
         //list of all lyrics
         val lyrics = SongDatabase.readSongLyricsAsList(activity, mode, song).toMutableList()
 
         if (mode == "classic") {
             for(x in 0 until lyrics.size) {
+                // if lyric is not found replace it with "???"
                 if(!foundLyricsClassic.contains(lyrics[x])) {
                     lyrics[x] = "???"
                 }
             }
         } else {
             for(x in 0 until lyrics.size) {
+                // if lyric is not found replace it with "???"
                 if(!foundLyricsCurrent.contains(lyrics[x])) {
                     lyrics[x] = "???"
                 }
             }
         }
 
-        Log.d("TAG", "LYRICS $lyrics")
         return lyrics
     }
 
+    /**
+     * save the found lyric to a list
+     */
     fun saveLyric(lyric: String)
     {
         if(mode == "classic") {
             foundLyricsClassic.add(lyric)
-            // save to preferences
+            // save to preferences for classic mode
             sp.edit().remove(foundLyricsKeyClassic).putStringSet(foundLyricsKeyClassic, foundLyricsClassic).apply()
         } else {
             foundLyricsCurrent.add(lyric)
-            // save to preferences
+            // save to preferences for current mode
             sp.edit().remove(foundLyricsKeyCurrent).putStringSet(foundLyricsKeyCurrent, foundLyricsCurrent).apply()
         }
     }
 
+    /**
+     * clear out saved set of found lyrics
+     */
     fun clearLyrics()
     {
         if(mode == "classic") {
@@ -98,6 +109,9 @@ class AppData constructor(private val context: Context) {
         }
     }
 
+    /**
+     * remove found lyrics from a set
+     */
     fun removeLyricFromSet(set: HashSet<String>) {
         if(mode == "classic") {
             set.removeAll(foundLyricsClassic)
@@ -106,6 +120,10 @@ class AppData constructor(private val context: Context) {
         }
     }
 
+    /**
+     * read a saved value of a song for relative mode
+     * if it doen't exist give it a default value
+     */
     fun syncSong() {
         song = if (mode == "classic") {
             sp.getString(classicKey, "nirvana(smells_like_teen_spirit).txt")!!
@@ -114,21 +132,33 @@ class AppData constructor(private val context: Context) {
         }
     }
 
+    /**
+     * save a song to the player's persistent data
+     */
     fun saveSong(song:String) {
         foundSongs.add(song)
         sp.edit().remove(foundSongsKey).putStringSet(foundSongsKey, foundSongs).apply()
     }
 
+    /**
+     * save a song to the favourite list persistent data
+     */
     fun saveFavouriteSong(song:String) {
         favouriteSongs.add(song)
         sp.edit().remove(favouriteSongsKey).putStringSet(favouriteSongsKey,favouriteSongs).apply()
     }
 
+    /**
+     * remove a song from the persistent data
+     */
     fun removeFavouriteSong(song:String) {
         favouriteSongs.remove(song)
         sp.edit().remove(favouriteSongsKey).putStringSet(favouriteSongsKey,favouriteSongs).apply()
     }
 
+    /**
+     * write the mode and song to persistent data
+     */
     fun savePrefModeAndSong(modeName: String, songName: String) {
         // update mode and song params
         mode = modeName
@@ -149,6 +179,9 @@ class AppData constructor(private val context: Context) {
         editor.apply()
     }
 
+    /**
+     * write the mode persistent data
+     */
     fun savePrefMode(modeName: String) {
         // update mode param
         mode = modeName
@@ -159,6 +192,9 @@ class AppData constructor(private val context: Context) {
         editor.putString(modeKey, modeName).apply()
     }
 
+    /**
+     * write the song of a mode to persistent data
+     */
     fun savePrefSong(songName: String) {
         // update song param
         song = songName
@@ -173,12 +209,19 @@ class AppData constructor(private val context: Context) {
         }
     }
 
+    /**
+     * save first time user to persistent data
+     */
     fun savePrefFirstTime() {
+        // is not a fisrt time user
         firstTimeUser = false
         val editor = sp.edit()
         editor.putBoolean(firstTimeKey, false).apply()
     }
 
+    /**
+     * check if player opens the app for the first time
+     */
     fun checkFirstTimeUser(intent: Intent) {
         if (firstTimeUser) {
             context.startActivity(intent)

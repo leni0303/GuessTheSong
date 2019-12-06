@@ -28,49 +28,52 @@ class GuessSongActivity : AppCompatActivity() {
 
         val lyricsText = findViewById<TextView>(R.id.lyricsText)
 
+        // save a text file of found and unknown lyrics
         val lyricsList = ad!!.showProgress(this)
         for (x in lyricsList) {
+            // add each lyric item
             lyricsText.append(x + "\n")
         }
 
         // make btn unavailable if user hasn't collected a lyric
         val guessBtn = findViewById<MaterialButton>(R.id.guessBtn)
+        // if there are no collected lyrics
         if(ad!!.mode == "classic" && ad!!.foundLyricsClassic.isEmpty()) {
-            guessBtn.isClickable = false
-            Toast.makeText(this, "Try and collect a lyric first", Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.no_lyric, Toast.LENGTH_LONG)
                 .show()
+            //disable button
+            guessBtn.isClickable = false
         } else if (ad!!.mode == "current" && ad!!.foundLyricsCurrent.isEmpty()) {
-            //guessBtn.setBackgroundColor(getColor(R.color.lightGray))
-            guessBtn.isClickable = false
-
-            Toast.makeText(this, "Try and collect a lyric first", Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.no_lyric, Toast.LENGTH_LONG)
                 .show()
+            // disable button
+            guessBtn.isClickable = false
         }
     }
 
+    /**
+     * get guess and compare to actual song
+     */
     fun guessSong(view: View) {
+        // get guesses for title and song
         val guessTitle = findViewById<TextInputEditText>(R.id.titleInputText).text
         val guessArtist = findViewById<TextInputEditText>(R.id.artistInputText).text
 
-        Log.d("TAG", "guessed title $guessTitle, guess artist $guessArtist, \n " +
-                "actual song ${artistAndTitle!!.second}, actual artist ${artistAndTitle!!.first} ")
-
-        //if (artistAndTitle!!.first == guessArtist && artistAndTitle!!.second == guessTitle) {
         if(guessTitle!!.contains(artistAndTitle!!.second, ignoreCase = true) && guessArtist!!.contains(artistAndTitle!!.first, ignoreCase = true)) {
-            Toast.makeText(this, "Congrats you guessed the song!", Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.congrats, Toast.LENGTH_LONG)
                 .show()
 
-            // add song to list
+            // add song to found song list
             ad!!.saveSong(ad!!.song)
             ad!!.debug()
 
-            // TODO: spawn new song
+            // spawn a new song
             val intent = Intent(this, MapsActivity::class.java)
             intent.putExtra("songStatus", "guessed")
-           // this.startActivity(Intent(this, MapsActivity::class.java))
+            // go back to main activity
             this.startActivity(intent)
         } else {
-            Toast.makeText(this, "Guess again", Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.guess_again, Toast.LENGTH_LONG)
                 .show()
         }
     }
